@@ -39,6 +39,20 @@ helm install elasticsearch elastic/elasticsearch \
 --namespace=logs \
 -f elastic-values.yaml
 
+
+LAST DEPLOYED: Mon Mar  1 06:36:36 2021
+NAMESPACE: logs
+STATUS: deployed
+REVISION: 1
+NOTES:
+1. Watch all cluster members come up.
+  $ kubectl get pods --namespace=logs -l app=elasticsearch-master -w
+2. Test cluster health using Helm test.
+  $ helm test elasticsearch --cleanup
+
+
+
+
 ElasticsSearch is starting and will be available in a few moments. In the meantime, continue to the next installation step.
 
 ######
@@ -51,6 +65,9 @@ Install Fluent Bit and pass the ElasticSearch service endpoint as a chart parame
 Add the chart repository for the Helm chart to be installed.
 
 helm repo add fluent https://fluent.github.io/helm-charts
+
+"fluent" has been added to your repositories
+
 
 Install the chart.
 
@@ -67,11 +84,19 @@ Kibana is a free and open user interface that lets you visualize your Elasticsea
 
 Deploy Kibana. The service will be on a NodePort at 31000.
 
-helm install kibana elastic/kibana \
+helm unistall kibana elastic/kibana \
   --version=7.9.0 \
   --namespace=logs \
   --set service.type=NodePort \
   --set service.nodePort=31000
+
+  NAME: kibana
+LAST DEPLOYED: Mon Mar  1 06:39:18 2021
+NAMESPACE: logs
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+
 
     Security caution. This NodePort exposes the logging to the outside world intentionally for demonstration purposes. However, for production Kubernetes clusters never expose the Kibana dashboard service to the world without any authentication.
 
@@ -86,6 +111,25 @@ All three installations of ElasticSearch, Fluent Bit, and Kibana are either stil
 To inspect the status of these deployments run this watch.
 
 watch kubectl get deployments,pods,services --namespace=logs
+
+Every 2.0s: 
+kubectl get deployments,pods,services --namespace=logs                                                                                                              
+NAME                            READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/kibana-kibana   0/1     1            0           2m8s
+
+NAME                                 READY   STATUS              RESTARTS   AGE
+pod/elasticsearch-master-0           1/1     Running             0          4m50s
+pod/elasticsearch-master-1           1/1     Running             0          4m50s
+pod/elasticsearch-master-2           1/1     Running             0          4m50s
+pod/fluent-bit-8zp5v                 1/1     Running             0          2m26s
+pod/kibana-kibana-6d874c5f46-kf72v   1/1     ContainerCreating   0          2m8s
+
+NAME                                    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)             AGE
+service/elasticsearch-master            ClusterIP   10.109.177.170   <none>        9200/TCP,9300/TCP   4m51s
+service/elasticsearch-master-headless   ClusterIP   None             <none>        9200/TCP,9300/TCP   4m51s
+service/fluent-bit                      ClusterIP   10.101.117.156   <none>        2020/TCP            2m26s
+service/kibana-kibana                   NodePort    10.101.112.159   <none>        5601:31000/TCP      2m8s
+
 
 Once complete, the Pods will move to the Running state. The full stack is not ready until all the Deployment statuses move to the Available (1) state.
 
@@ -160,6 +204,7 @@ The log list now is filtered to show log events from the random-logger service. 
 From here you can start to appreciate the amount of information this stack provides. More information is in the Kibana documentation.
 ######
 
+automationmgr@master1:~/workbench/kubenetesbench/kubernetes-k8s-lab14$ kubectl delete namespace logs
 
 
 
