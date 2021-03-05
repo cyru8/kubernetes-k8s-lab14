@@ -210,9 +210,7 @@ automationmgr@master1:~/workbench/kubenetesbench/kubernetes-k8s-lab14$ kubectl d
     6. Setting up management script
 
 How to deploy Kubernetes Dashboard quickly and easily
-Yuwono Mujahidin
-contributor
-Integrations Updated on 2020-12-07 5
+
 Article series:
 
     Part 1: How to install Kubernetes cluster on CentOS 8
